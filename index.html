@@ -12,6 +12,46 @@
             padding-right: 320px; /* Makes room for the fixed search bar on the right */
         }
 
+        /* Tabs Navigation Bar */
+        .tabs-nav {
+            display: flex;
+            gap: 10px;
+            margin-bottom: 25px;
+            border-bottom: 2px solid #ccc;
+            padding-bottom: 10px;
+        }
+
+        .tab-button {
+            padding: 10px 20px;
+            font-size: 1em;
+            font-weight: bold;
+            color: #0056b3;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .tab-button:hover {
+            background-color: #e2e6ea;
+        }
+
+        .tab-button.active {
+            color: white;
+            background-color: #0056b3;
+            border-color: #0056b3;
+        }
+
+        /* Hide sections by default, JavaScript handles showing the active one */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
         /* Color requirements */
         h1, li {
             color: #0056b3; /* Vibrant blue color */
@@ -28,6 +68,7 @@
             border: 1px solid #ccc;
             border-radius: 8px;
             box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            z-index: 1000;
         }
 
         .search-container input {
@@ -80,34 +121,71 @@
         <div id="search-status"></div>
     </div>
 
-    <!-- Content Sections -->
-    <div class="content-section">
-        <h1>Jonathan's Stuff Contains:</h1>
-        <ul>
-            <li>YearBook Photos-7th Grade</li>
-            <li>Pre-K Yearbook Page</li>
-            <li>Cool Caves Book</li>
-            <li>Hot Lava Book</li>
-            <li>Pictureka Game Board</li>
-            <li>Pencil Stand</li>
-            <li>Large ClipBoard</li>
-            <li>Small ClipBoard</li>
-            <li>Toy Sheild</li>
-            <li>Toy Sword</li>
-            <li>ScrapBook</li>
-            <li>Large coloring Kit</li>
-            <li>2 Pencil Pouches</li>
-        </ul>
+    <!-- Sections Tabs Navigation -->
+    <div class="tabs-nav">
+        <button class="tab-button active" onclick="switchTab('jonathan-tab', this)">Jonathan's Tab</button>
+        <button class="tab-button" onclick="switchTab('moms-tab', this)">Mom's Tab</button>
     </div>
 
-    <div class="content-section">
-        <h1>Jonathan's clothes Contains:</h1>
-        <ul>
-            <li>All Clothes In the Bag Fits Jonathan (Checked)</li>
-        </ul>
+    <!-- JONATHAN'S TAB CONTENT -->
+    <div id="jonathan-tab" class="tab-content active">
+        <div class="content-section">
+            <h1>Jonathan's Stuff Contains:</h1>
+            <ul>
+                <li>YearBook Photos-7th Grade</li>
+                <li>Pre-K Yearbook Page</li>
+                <li>Cool Caves Book</li>
+                <li>Hot Lava Book</li>
+                <li>Pictureka Game Board</li>
+                <li>Pencil Stand</li>
+                <li>Large ClipBoard</li>
+                <li>Small ClipBoard</li>
+                <li>Toy Sheild</li>
+                <li>Toy Sword</li>
+                <li>ScrapBook</li>
+                <li>Large coloring Kit</li>
+                <li>2 Pencil Pouches</li>
+            </ul>
+        </div>
+
+        <div class="content-section">
+            <h1>Jonathan's clothes Contains:</h1>
+            <ul>
+                <li>All Clothes In the Bag Fits Jonathan (Checked)</li>
+            </ul>
+        </div>
+    </div>
+
+    <!-- MOM'S TAB CONTENT -->
+    <div id="moms-tab" class="tab-content">
+        <div class="content-section">
+            <h1>Mom's Stuff Contains:</h1>
+            <ul>
+                <li>Items will go here later...</li>
+            </ul>
+        </div>
     </div>
 
     <script>
+        // Tab switching functionality
+        function switchTab(tabId, buttonElement) {
+            // Hide all tab contents
+            const contents = document.querySelectorAll('.tab-content');
+            contents.forEach(content => content.classList.remove('active'));
+
+            // Deactivate all tab buttons
+            const buttons = document.querySelectorAll('.tab-button');
+            buttons.forEach(btn => btn.classList.remove('active'));
+
+            // Show current tab and activate button
+            document.getElementById(tabId).classList.add('active');
+            buttonElement.classList.add('active');
+
+            // Clear search status when switching tabs
+            document.getElementById('search-status').textContent = "";
+        }
+
+        // Search functionality
         function searchItem() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             const statusDiv = document.getElementById('search-status');
@@ -117,7 +195,7 @@
             previousHighlights.forEach(el => {
                 const parent = el.parentNode;
                 parent.replaceChild(document.createTextNode(el.textContent), el);
-                parent.normalize(); // Clean up text nodes
+                parent.normalize();
             });
 
             if (!query) {
@@ -125,7 +203,7 @@
                 return;
             }
 
-            // Find all list items
+            // Find all list items across the whole site
             const items = document.querySelectorAll('li');
             let found = false;
 
@@ -133,7 +211,17 @@
                 const text = item.textContent.toLowerCase();
                 
                 if (text.includes(query)) {
-                    // Find which header this item belongs to
+                    // Find the tab content container this item belongs to
+                    const tabContainer = item.closest('.tab-content');
+                    const tabId = tabContainer.id;
+                    
+                    // Automatically switch to the correct tab if the item is hidden there
+                    if (!tabContainer.classList.contains('active')) {
+                        const targetButton = document.querySelector(`button[onclick*="${tabId}"]`);
+                        switchTab(tabId, targetButton);
+                    }
+
+                    // Find which sub-header this item belongs to
                     const section = item.closest('.content-section');
                     const headerText = section.querySelector('h1').textContent;
 
@@ -147,7 +235,7 @@
                     // Update status bar with the header info
                     statusDiv.innerHTML = `Found in:<br><strong>${headerText}</strong>`;
                     found = true;
-                    break; // Stop at the first match like a PC word search
+                    break;
                 }
             }
 
