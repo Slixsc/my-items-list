@@ -9,8 +9,13 @@
         body {
             font-family: Arial, sans-serif;
             margin: 20px;
-            padding-right: 320px; /* Makes room for the fixed search bar on large screens */
-            transition: padding-right 0.3s ease;
+            padding-bottom: 100px; /* Space at bottom so scrolling works nicely */
+            user-select: none; /* Prevents text selection while dragging */
+        }
+
+        /* Allow normal text selection in content and search inputs */
+        .tab-content, input, #search-status {
+            user-select: text;
         }
 
         /* Tabs Navigation Bar */
@@ -31,11 +36,6 @@
             border: 1px solid #ccc;
             border-radius: 5px;
             cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .tab-button:hover {
-            background-color: #e2e6ea;
         }
 
         .tab-button.active {
@@ -44,7 +44,7 @@
             border-color: #0056b3;
         }
 
-        /* Hide sections by default, JavaScript handles showing the active one */
+        /* Hide tabs by default */
         .tab-content {
             display: none;
         }
@@ -55,65 +55,108 @@
 
         /* Color requirements */
         h1, li {
-            color: #0056b3; /* Vibrant blue color */
+            color: #0056b3;
         }
 
-        /* Fixed search container on the right side (Desktop) */
-        .search-container {
+        /* FLOATING MOVABLE WIDGET CONTAINER */
+        .draggable-search-widget {
             position: fixed;
-            right: 20px;
-            top: 20px;
-            width: 260px;
-            padding: 15px;
+            bottom: 30px;
+            right: 30px;
+            z-index: 10000;
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+        }
+
+        /* Main Floating Action Button (FAB) */
+        .widget-toggle-btn {
+            width: 60px;
+            height: 60px;
+            background-color: #0056b3;
+            color: white;
+            border-radius: 50%;
+            border: none;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            cursor: pointer;
+            font-size: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: transform 0.2s ease;
+        }
+
+        .widget-toggle-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* Expandable Search Window Box */
+        .search-window {
+            display: none; /* Controlled by JS toggle */
+            width: 280px;
             background-color: #f8f9fa;
-            border: 1px solid #ccc;
-            border-radius: 8px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-            z-index: 1000;
-            transition: all 0.3s ease;
+            border: 2px solid #0056b3;
+            border-radius: 12px;
+            box-shadow: 0 8px 24px rgba(0,0,0,0.2);
+            margin-bottom: 15px;
+            overflow: hidden;
         }
 
-        .search-container h3 {
-            margin-top: 0;
+        /* Drag Handle Header Bar */
+        .search-window-header {
+            background-color: #0056b3;
+            color: white;
+            padding: 10px 15px;
+            cursor: move; /* Shows dragging crosshair icon */
+            font-weight: bold;
+            font-size: 14px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
-        .search-container input {
+        .close-window-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 16px;
+            cursor: pointer;
+        }
+
+        /* Inside content of search box */
+        .search-window-body {
+            padding: 15px;
+        }
+
+        .search-window-body input {
             width: 100%;
             padding: 10px;
             margin-bottom: 10px;
             box-sizing: border-box;
             border: 1px solid #aaa;
-            border-radius: 4px;
-            font-size: 16px; /* Prevents iOS auto-zoom on focus */
+            border-radius: 6px;
+            font-size: 16px;
         }
 
-        .search-container button {
+        .search-window-body button {
             width: 100%;
             padding: 10px;
             background-color: #0056b3;
             color: white;
             border: none;
-            border-radius: 4px;
+            border-radius: 6px;
             cursor: pointer;
             font-weight: bold;
-        }
-
-        .search-container button:hover {
-            background-color: #004085;
         }
 
         #search-status {
             margin-top: 10px;
             font-size: 0.9em;
             color: #333;
+            line-height: 1.4;
         }
 
-        /* Toggle button for mobile only */
-        .mobile-search-toggle {
-            display: none;
-        }
-
-        /* Highlight style for matched items */
+        /* Yellow Highlight marker style */
         .highlight {
             background-color: yellow;
             color: black !important;
@@ -121,65 +164,29 @@
             border-radius: 4px;
             font-weight: bold;
         }
-
-        /* MOBILE RESPONSIVE STYLES */
-        @media (max-width: 768px) {
-            body {
-                padding-right: 0; /* Remove right spacing so text fills the mobile screen */
-                margin: 15px;
-            }
-
-            /* Convert search container to a slide-up / floating menu from bottom right */
-            .search-container {
-                top: auto;
-                bottom: 80px; /* Sits directly above the floating button */
-                right: 20px;
-                width: 280px;
-                opacity: 0;
-                pointer-events: none; /* Hidden from touch actions when closed */
-                transform: translateY(20px);
-            }
-
-            /* Class added via JS when the mobile icon is tapped */
-            .search-container.mobile-open {
-                opacity: 1;
-                pointer-events: auto;
-                transform: translateY(0);
-            }
-
-            /* Floating action button visible ONLY on mobile */
-            .mobile-search-toggle {
-                display: flex;
-                position: fixed;
-                bottom: 20px;
-                right: 20px;
-                width: 50px;
-                height: 50px;
-                background-color: #0056b3;
-                color: white;
-                border-radius: 50%;
-                border: none;
-                box-shadow: 0 4px 8px rgba(0,0,0,0.3);
-                cursor: pointer;
-                z-index: 1001;
-                align-items: center;
-                justify-content: center;
-                font-size: 20px;
-            }
-        }
     </style>
 </head>
 <body>
 
-    <!-- Floating Mobile Toggle Button (Magnifying Glass symbol) -->
-    <button class="mobile-search-toggle" onclick="toggleMobileSearch()">🔍</button>
+    <!-- DRAGGABLE & COLLAPSIBLE WIDGET PANEL -->
+    <div class="draggable-search-widget" id="searchWidget">
+        
+        <!-- Search Window Box (Sits above toggle button when open) -->
+        <div class="search-window" id="searchWindow">
+            <!-- Drag Handle Bar -->
+            <div class="search-window-header" id="searchDragHandle">
+                <span>↕ Drag to Move Search Window</span>
+                <button class="close-window-btn" onclick="toggleSearchWidget()">✕</button>
+            </div>
+            <div class="search-window-body">
+                <input type="text" id="search-input" placeholder="Type item name...">
+                <button onclick="searchItem()">Search Item</button>
+                <div id="search-status"></div>
+            </div>
+        </div>
 
-    <!-- Search Feature Container -->
-    <div class="search-container" id="search-box">
-        <h3>Search Items</h3>
-        <input type="text" id="search-input" placeholder="Type item name...">
-        <button onclick="searchItem()">Search</button>
-        <div id="search-status"></div>
+        <!-- Floating Launch Button -->
+        <button class="widget-toggle-btn" id="widgetToggleBtn" onclick="toggleSearchWidget()">🔍</button>
     </div>
 
     <!-- Sections Tabs Navigation -->
@@ -190,7 +197,7 @@
 
     <!-- JONATHAN'S TAB CONTENT -->
     <div id="jonathan-tab" class="tab-content active">
-        <div class="content-section">
+        <div>
             <h1>Jonathan's Stuff Contains:</h1>
             <ul>
                 <li>YearBook Photos-7th Grade</li>
@@ -209,7 +216,7 @@
             </ul>
         </div>
 
-        <div class="content-section">
+        <div>
             <h1>Jonathan's clothes Contains:</h1>
             <ul>
                 <li>All Clothes In the Bag Fits Jonathan (Checked)</li>
@@ -219,7 +226,7 @@
 
     <!-- MOM'S TAB CONTENT -->
     <div id="moms-tab" class="tab-content">
-        <div class="content-section">
+        <div>
             <h1>Mom's Stuff Contains:</h1>
             <ul>
                 <li>Items will go here later...</li>
@@ -228,16 +235,25 @@
     </div>
 
     <script>
-        // Toggle search view on mobile screens
-        function toggleMobileSearch() {
-            const searchBox = document.getElementById('search-box');
-            searchBox.classList.toggle('mobile-open');
+        // 1. Open/Close Toggle View Logic
+        function toggleSearchWidget() {
+            const windowBox = document.getElementById('searchWindow');
+            const toggleBtn = document.getElementById('widgetToggleBtn');
+            
+            if (windowBox.style.display === 'block') {
+                windowBox.style.display = 'none';
+                toggleBtn.textContent = "🔍";
+            } else {
+                windowBox.style.display = 'block';
+                toggleBtn.textContent = "✕";
+                document.getElementById('search-input').focus();
+            }
         }
 
-        // Tab switching functionality
+        // 2. Tab Switch Logic
         function switchTab(tabId, buttonElement) {
-            const contents = document.querySelectorAll('.tab-content');
-            contents.forEach(content => content.classList.remove('active'));
+            const tabs = document.querySelectorAll('.tab-content');
+            tabs.forEach(tab => tab.classList.remove('active'));
 
             const buttons = document.querySelectorAll('.tab-button');
             buttons.forEach(btn => btn.classList.remove('active'));
@@ -248,7 +264,7 @@
             document.getElementById('search-status').textContent = "";
         }
 
-        // Search functionality
+        // 3. Search & Highlight View Align Logic
         function searchItem() {
             const query = document.getElementById('search-input').value.toLowerCase().trim();
             const statusDiv = document.getElementById('search-status');
@@ -256,8 +272,7 @@
             const previousHighlights = document.querySelectorAll('.highlight');
             previousHighlights.forEach(el => {
                 const parent = el.parentNode;
-                parent.replaceChild(document.createTextNode(el.textContent), el);
-                parent.normalize();
+                parent.innerHTML = parent.textContent; 
             });
 
             if (!query) {
@@ -272,33 +287,23 @@
                 const text = item.textContent.toLowerCase();
                 
                 if (text.includes(query)) {
-                    const tabContainer = item.closest('.tab-content');
-                    const tabId = tabContainer.id;
+                    let currentParent = item.parentElement;
+                    let matchedTabId = "jonathan-tab";
                     
-                    if (!tabContainer.classList.contains('active')) {
-                        const targetButton = document.querySelector(`button[onclick*="${tabId}"]`);
-                        switchTab(tabId, targetButton);
+                    while (currentParent && currentParent !== document.body) {
+                        if (currentParent.classList.contains('tab-content')) {
+                            matchedTabId = currentParent.id;
+                            break;
+                        }
+                        currentParent = currentParent.parentElement;
                     }
 
-                    const section = item.closest('.content-section');
-                    const headerText = section.querySelector('h1').textContent;
+                    const targetTab = document.getElementById(matchedTabId);
+                    if (!targetTab.classList.contains('active')) {
+                        const correctBtn = document.querySelector(`button[onclick*="${matchedTabId}"]`);
+                        switchTab(matchedTabId, correctBtn);
+                    }
 
                     const regex = new RegExp(`(${query})`, 'gi');
                     item.innerHTML = item.textContent.replace(regex, '<span class="highlight">$1</span>');
 
-                    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
-
-                    statusDiv.innerHTML = `Found in:<br><strong>${headerText}</strong>`;
-                    found = true;
-
-                    // On mobile, minimize the search box after a successful find to show the result clearly
-                    if (window.innerWidth <= 768) {
-                        setTimeout(() => {
-                            document.getElementById('search-box').classList.remove('mobile-open');
-                        }, 800);
-                    }
-                    break;
-                }
-            }
-
-            if (!found) {
