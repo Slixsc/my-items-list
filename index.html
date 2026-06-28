@@ -4,28 +4,165 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>What Is Packed:</title>
+    <style>
+        /* Layout styling */
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            padding-right: 320px; /* Makes room for the fixed search bar on the right */
+        }
+
+        /* Color requirements */
+        h1, li {
+            color: #0056b3; /* Vibrant blue color */
+        }
+
+        /* Fixed search container on the right side */
+        .search-container {
+            position: fixed;
+            right: 20px;
+            top: 20px;
+            width: 260px;
+            padding: 15px;
+            background-color: #f8f9fa;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
+        .search-container input {
+            width: 100%;
+            padding: 8px;
+            margin-bottom: 10px;
+            box-sizing: border-box;
+            border: 1px solid #aaa;
+            border-radius: 4px;
+        }
+
+        .search-container button {
+            width: 100%;
+            padding: 8px;
+            background-color: #0056b3;
+            color: white;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-weight: bold;
+        }
+
+        .search-container button:hover {
+            background-color: #004085;
+        }
+
+        #search-status {
+            margin-top: 10px;
+            font-size: 0.9em;
+            color: #333;
+        }
+
+        /* Highlight style for matched items */
+        .highlight {
+            background-color: yellow;
+            color: black !important;
+            padding: 2px 4px;
+            border-radius: 4px;
+            font-weight: bold;
+        }
+    </style>
 </head>
 <body>
+
+    <!-- Search Feature Sidebar -->
+    <div class="search-container">
+        <h3>Search Items</h3>
+        <input type="text" id="search-input" placeholder="Type item name...">
+        <button onclick="searchItem()">Search</button>
+        <div id="search-status"></div>
+    </div>
+
+    <!-- Content Sections -->
+    <div class="content-section">
         <h1>Jonathan's Stuff Contains:</h1>
-    <ul>
-        <li>YearBook Photos-7th Grade</li>
-        <li>Pre-K Yearbook Page</li>
-        <li>Cool Caves Book</li>
-        <li>Hot Lava Book</li>
-        <li>Pictureka Game Board</li>
-        <li>Pencil Stand</li>
-        <li>Large clipBoard</li>
-        <li>Small ClipBoard</li>
-        <li>Toy Sheild</li>
-        <li>Toy Sword</li>
-        <li>ScrapBook</li>
-        <li>Large coloring Kit</li>
-        <li>2 Pencil Pouches</li>
-    </ul>
+        <ul>
+            <li>YearBook Photos-7th Grade</li>
+            <li>Pre-K Yearbook Page</li>
+            <li>Cool Caves Book</li>
+            <li>Hot Lava Book</li>
+            <li>Pictureka Game Board</li>
+            <li>Pencil Stand</li>
+            <li>Large ClipBoard</li>
+            <li>Small ClipBoard</li>
+            <li>Toy Sheild</li>
+            <li>Toy Sword</li>
+            <li>ScrapBook</li>
+            <li>Large coloring Kit</li>
+            <li>2 Pencil Pouches</li>
+        </ul>
+    </div>
+
+    <div class="content-section">
         <h1>Jonathan's clothes Contains:</h1>
-    <ul>
-        <li>All Clothes In the Bag Fits Jonathan (Checked)</li>
-    </ul>
-        
+        <ul>
+            <li>All Clothes In the Bag Fits Jonathan (Checked)</li>
+        </ul>
+    </div>
+
+    <script>
+        function searchItem() {
+            const query = document.getElementById('search-input').value.toLowerCase().trim();
+            const statusDiv = document.getElementById('search-status');
+            
+            // Remove any previous highlights
+            const previousHighlights = document.querySelectorAll('.highlight');
+            previousHighlights.forEach(el => {
+                const parent = el.parentNode;
+                parent.replaceChild(document.createTextNode(el.textContent), el);
+                parent.normalize(); // Clean up text nodes
+            });
+
+            if (!query) {
+                statusDiv.textContent = "Please enter a search term.";
+                return;
+            }
+
+            // Find all list items
+            const items = document.querySelectorAll('li');
+            let found = false;
+
+            for (let item of items) {
+                const text = item.textContent.toLowerCase();
+                
+                if (text.includes(query)) {
+                    // Find which header this item belongs to
+                    const section = item.closest('.content-section');
+                    const headerText = section.querySelector('h1').textContent;
+
+                    // Highlight the matched text inside the list item
+                    const regex = new RegExp(`(${query})`, 'gi');
+                    item.innerHTML = item.textContent.replace(regex, '<span class="highlight">$1</span>');
+
+                    // Scroll smoothly to the item
+                    item.scrollIntoView({ behavior: 'smooth', block: 'center' });
+
+                    // Update status bar with the header info
+                    statusDiv.innerHTML = `Found in:<br><strong>${headerText}</strong>`;
+                    found = true;
+                    break; // Stop at the first match like a PC word search
+                }
+            }
+
+            if (!found) {
+                statusDiv.textContent = "Item not found.";
+            }
+        }
+
+        // Allow pressing "Enter" key to search
+        document.getElementById('search-input').addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                searchItem();
+            }
+        });
+    </script>
+
 </body>
 </html>
